@@ -115,7 +115,57 @@ void insertTail(HOHLinkedList *list, int data) { append(list, data); }
 
 int size(HOHLinkedList *list);
 
-int get(HOHLinkedList *list, int index);
+int get(HOHLinkedList *list, int index) {
+  // TODO implement error handling
+  if (list == NULL || list->head == NULL) {
+    return 0;
+  }
+
+  // traverse the list starting at the dummy node
+  HOHNode *curr = list->head;
+
+  // acquire the lock on the dummy node first
+  pthread_mutex_lock(&curr->lock);
+
+  // TODO implement error handling
+  if (curr->next == NULL) {
+    pthread_mutex_unlock(&curr->lock);
+    return 0;
+  }
+
+  while (curr->next != NULL) {
+    // acquire the lock on the current node's neighbor
+    HOHNode *next = curr->next;
+    if (next != NULL) {
+      // we can safely assume that this memory is still allocated for the
+      // neighbor since deletion must occur on the second node of the pair,
+      // NEVER on the first node
+      pthread_mutex_lock(&next->lock);
+
+      if (index == 0) {
+        // retrieve the neighbor node's data
+        int value = next->data;
+
+        // relinquish the locks on the current and neighbor nodes
+        pthread_mutex_unlock(&curr->lock);
+        pthread_mutex_unlock(&next->lock);
+        return value;
+      }
+
+      // relinquish the lock of the current node
+      pthread_mutex_unlock(&curr->lock);
+
+      // continue traversing the list
+      curr = next;
+      index--;
+    }
+  }
+
+  // TODO implement error handling
+  // the requested index is outside of the bounds of the linked list
+  pthread_mutex_unlock(&curr->lock);
+  return 0;
+}
 
 int front(HOHLinkedList *list) {
   // TODO implement error handling
