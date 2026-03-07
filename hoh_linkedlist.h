@@ -25,7 +25,7 @@ HOHNode *createNode(int data);
 /**
  * Initializes an empty linked list.
  */
-void initList(HOHLinkedList *list);
+void initList(HOHLinkedList **list);
 
 // Delete lists
 
