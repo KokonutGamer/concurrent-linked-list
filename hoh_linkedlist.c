@@ -117,7 +117,32 @@ int size(HOHLinkedList *list);
 
 int get(HOHLinkedList *list, int index);
 
-int front(HOHLinkedList *list);
+int front(HOHLinkedList *list) {
+  // TODO implement error handling
+  if (list == NULL || list->head == NULL) {
+    return 0;
+  }
+
+  // acquire the locks on the dummy and first nodes
+  pthread_mutex_lock(&list->head->lock);
+
+  // TODO implement error handling
+  if (list->head->next == NULL) {
+    pthread_mutex_unlock(&list->head->lock);
+    return 0;
+  }
+
+  pthread_mutex_lock(&list->head->next->lock);
+
+  // retrieve the value of the first node
+  int value = list->head->next->data;
+
+  // relinquish the locks on the dummy and first nodes
+  pthread_mutex_unlock(&list->head->lock);
+  pthread_mutex_unlock(&list->head->next->lock);
+
+  return value;
+}
 
 int back(HOHLinkedList *list);
 
