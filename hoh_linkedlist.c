@@ -113,7 +113,41 @@ void insertHead(HOHLinkedList *list, int data) { insertNode(list, 0, data); }
 
 void insertTail(HOHLinkedList *list, int data) { append(list, data); }
 
-int size(HOHLinkedList *list);
+int size(HOHLinkedList *list) {
+  if (list == NULL || list->head == NULL) {
+    return 0;
+  }
+
+  int count = 0;
+
+  // traverse the list starting at the dummy node
+  HOHNode *curr = list->head;
+
+  // acquire the lock on the dummy node first
+  pthread_mutex_lock(&curr->lock);
+
+  while (curr->next != NULL) {
+    // acquire the lock on the current node's neighbor
+    HOHNode *next = curr->next;
+    if (next != NULL) {
+      // we can safely assume that this memory is still allocated for the
+      // neighbor since deletion must occur on the second node of the pair,
+      // NEVER on the first node
+      pthread_mutex_lock(&next->lock);
+      pthread_mutex_unlock(&curr->lock);
+
+      // increment the count of the size of the list
+      count++;
+
+      // continue traversing the list
+      curr = next;
+    }
+  }
+
+  // relinquish the lock on the current node
+  pthread_mutex_unlock(&curr->lock);
+  return count;
+}
 
 int get(HOHLinkedList *list, int index) {
   // TODO implement error handling
