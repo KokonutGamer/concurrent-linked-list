@@ -59,14 +59,59 @@ void append(HOHLinkedList *list, int data) {
   // append the new node to the end of the list
   curr->next = createNode(data);
   pthread_mutex_unlock(&curr->lock);
-  return;
 }
 
-void insertNode(HOHLinkedList *list, int index, int data);
+void insertNode(HOHLinkedList *list, int index, int data) {
+  // exit early if the list is null
+  if (list == NULL || list->head == NULL) {
+    return;
+  }
 
-void insertHead(HOHLinkedList *list, int data);
+  // traverse the list starting at the dummy node
+  HOHNode *curr = list->head;
 
-void insertTail(HOHLinkedList *list, int data);
+  // acquire the lock on the dummy node first
+  pthread_mutex_lock(&curr->lock);
+
+  while (curr->next != NULL) {
+    // acquire the lock on the current node's neighbor
+    HOHNode *next = curr->next;
+    if (next != NULL) {
+      // we can safely assume that this memory is still allocated for the
+      // neighbor since deletion must occur on the second node of the pair,
+      // NEVER on the first node
+      pthread_mutex_lock(&next->lock);
+
+      if (index == 0) {
+        // insert the new node now that we've found where to insert at
+        curr->next = createNode(data);
+        curr->next->next = next;
+
+        // relinquish both (current and next) locks
+        pthread_mutex_unlock(&curr->lock);
+        pthread_mutex_unlock(&next->lock);
+        return;
+      }
+
+      // relinquish the lock of the current node
+      pthread_mutex_unlock(&curr->lock);
+
+      // continue traversing the list
+      curr = next;
+      index--;
+    }
+  }
+
+  // the current node's neighbor is null
+  if (index == 0) {
+    curr->next = createNode(data);
+  }
+  pthread_mutex_unlock(&curr->lock);
+}
+
+void insertHead(HOHLinkedList *list, int data) { insertNode(list, 0, data); }
+
+void insertTail(HOHLinkedList *list, int data) { append(list, data); }
 
 int size(HOHLinkedList *list);
 
