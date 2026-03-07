@@ -11,6 +11,7 @@ typedef struct HOHNode {
 
 typedef struct HOHLinkedList {
   HOHNode *head;
+  pthread_mutex_t printLock;
 } HOHLinkedList;
 
 /**

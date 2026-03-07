@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 HOHNode *createNode(int data) {
   HOHNode *node = (HOHNode *)malloc(sizeof(HOHNode));
@@ -14,8 +15,9 @@ HOHNode *createNode(int data) {
 void initList(HOHLinkedList **list) {
   *list = (HOHLinkedList *)malloc(sizeof(HOHLinkedList));
 
-  // initialize the list with a dummy head
+  // initialize the list with a dummy head and mutex
   (*list)->head = createNode(0);
+  pthread_mutex_init(&(*list)->printLock, NULL);
 }
 
 void destroyList(HOHLinkedList *list) {
@@ -25,6 +27,7 @@ void destroyList(HOHLinkedList *list) {
   }
   clearList(list);
   pthread_mutex_destroy(&list->head->lock);
+  pthread_mutex_destroy(&list->printLock);
   free(list->head); // dummy node
   free(list);       // list data structure
 }
@@ -268,7 +271,55 @@ int back(HOHLinkedList *list) {
   return value;
 }
 
-void printList(HOHLinkedList *list);
+void printList(HOHLinkedList *list) {
+  if (list == NULL || list->head == NULL) {
+    return;
+  }
+
+  // acquire the list's print lock
+  pthread_mutex_lock(&list->printLock);
+
+  // checks if a previous element was printed
+  int prevBuf = 0;
+
+  // traverse the list starting at the dummy node
+  HOHNode *curr = list->head;
+
+  // acquire the lock on the dummy node first
+  pthread_mutex_lock(&curr->lock);
+
+  while (curr->next != NULL) {
+    // acquire the lock on the current node's neighbor
+    HOHNode *next = curr->next;
+    if (next != NULL) {
+      // we can safely assume that this memory is still allocated for the
+      // neighbor since deletion must occur on the second node of the pair,
+      // NEVER on the first node
+      pthread_mutex_lock(&next->lock);
+      pthread_mutex_unlock(&curr->lock);
+
+      // print the current element of the list
+      if (prevBuf) {
+        printf(" -> ");
+      }
+      printf("%d", next->data);
+      prevBuf = 1;
+
+      // continue traversing the list
+      curr = next;
+    }
+  }
+
+  // print the end of the list
+  if (prevBuf) {
+    printf(" -> ");
+  }
+  printf("(null)");
+
+  // relinquish the lock on the current node and the linked list's print lock
+  pthread_mutex_unlock(&curr->lock);
+  pthread_mutex_unlock(&list->printLock);
+}
 
 void clearList(HOHLinkedList *list) {
   // exit early if the list is null
