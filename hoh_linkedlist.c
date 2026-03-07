@@ -164,8 +164,93 @@ void clearList(HOHLinkedList *list) {
   pthread_mutex_unlock(&list->head->lock);
 }
 
-void removeNode(HOHLinkedList *list, int index);
+void removeNode(HOHLinkedList *list, int index) {
+  // exit early if the list is null
+  if (list == NULL || list->head == NULL) {
+    return;
+  }
 
-void removeHead(HOHLinkedList *list);
+  // traverse the list starting at the dummy node
+  HOHNode *curr = list->head;
 
-void removeTail(HOHLinkedList *list);
+  // acquire the lock on the dummy node first
+  pthread_mutex_lock(&curr->lock);
+
+  while (curr->next != NULL) {
+    // acquire the lock on the current node's neighbor
+    HOHNode *next = curr->next;
+    if (next != NULL) {
+      // we can safely assume that this memory is still allocated for the
+      // neighbor since deletion must occur on the second node of the pair,
+      // NEVER on the first node
+      pthread_mutex_lock(&next->lock);
+
+      if (index == 0) {
+        // free the node now that we've found its index
+        curr->next = next->next;
+        pthread_mutex_unlock(&next->lock);
+        pthread_mutex_destroy(&next->lock);
+        free(next);
+
+        // relinquish the lock on the current node
+        pthread_mutex_unlock(&curr->lock);
+        return;
+      }
+
+      // relinquish the lock of the current node
+      pthread_mutex_unlock(&curr->lock);
+
+      // continue traversing the list
+      curr = next;
+      index--;
+    }
+  }
+
+  // the current node's neighbor is null
+  pthread_mutex_unlock(&curr->lock);
+}
+
+void removeHead(HOHLinkedList *list) { removeNode(list, 0); }
+
+void removeTail(HOHLinkedList *list) {
+  // exit early if the list is null
+  if (list == NULL || list->head == NULL) {
+    return;
+  }
+
+  // traverse the list starting at the dummy node
+  HOHNode *curr = list->head;
+
+  // acquire the lock on the dummy node first
+  pthread_mutex_lock(&curr->lock);
+
+  while (curr->next != NULL) {
+    // acquire the lock on the current node's neighbor
+    HOHNode *next = curr->next;
+    if (next != NULL) {
+      // we can safely assume that this memory is still allocated for the
+      // neighbor since deletion must occur on the second node of the pair,
+      // NEVER on the first node
+      pthread_mutex_lock(&next->lock);
+
+      if (next->next == NULL) {
+        // free the current node's neighbor as it's the last in the list
+        curr->next = NULL;
+        pthread_mutex_unlock(&next->lock);
+        pthread_mutex_destroy(&next->lock);
+        free(next);
+        pthread_mutex_unlock(&curr->lock);
+        return;
+      }
+
+      pthread_mutex_unlock(&curr->lock);
+
+      // continue traversing the list
+      curr = next;
+    }
+  }
+
+  // relinquish the lock on the dummy node; this code should only execute if
+  // no nodes exist after the dummy node
+  pthread_mutex_unlock(&curr->lock);
+}
