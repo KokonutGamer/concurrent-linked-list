@@ -1,3 +1,5 @@
+#ifndef LINKED_LIST_H
+#define LINKED_LIST_H
 
 typedef struct Node {
   int data;
@@ -19,3 +21,5 @@ void removeAtIndex(Node **head, int index);
 void removeAtHead(Node **head);
 void removeAtTail(Node **head);
 void clear(Node **head);
+
+#endif // LINKED_LIST_H

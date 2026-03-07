@@ -20,7 +20,21 @@ GLNode *createNode(int data);
 
 // ==================== LINKED LIST FUNCTIONS ====================
 
-// Create
+// Create lists
+
+/**
+ * Initializes an empty linked list.
+ */
+void initList(GLLinkedList *list);
+
+// Delete lists
+
+/**
+ * Destroys a linked list.
+ */
+void destroyList(GLLinkedList *list);
+
+// Create nodes
 
 /**
  * Appends a new node to the specified linked list.
@@ -30,7 +44,7 @@ void append(GLLinkedList *list, int data);
 /**
  * Inserts a node at the specified index.
  */
-void insert(GLLinkedList *list, int index, int data);
+void insertNode(GLLinkedList *list, int index, int data);
 
 /**
  * Inserts a node at the head of the linked list.
@@ -43,7 +57,7 @@ void insertHead(GLLinkedList *list, int data);
  */
 void insertTail(GLLinkedList *list, int data);
 
-// Read
+// Read nodes
 
 /**
  * Retrieves the size of the linked list.
@@ -70,17 +84,17 @@ int back(const GLLinkedList *list);
  */
 void printList(const GLLinkedList *list);
 
-// Delete
+// Delete nodes
 
 /**
  * Frees all data in the entire list.
  */
-void clear(GLLinkedList *list);
+void clearList(GLLinkedList *list);
 
 /**
  * Deletes the node at the specified index.
  */
-void remove(GLLinkedList *list, int index);
+void removeNode(GLLinkedList *list, int index);
 
 /**
  * Deletes the node at the head of the linked list.
