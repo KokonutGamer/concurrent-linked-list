@@ -62,27 +62,27 @@ void insertTail(HOHLinkedList *list, int data);
 /**
  * Retrieves the size of the linked list.
  */
-int size(const HOHLinkedList *list);
+int size(HOHLinkedList *list);
 
 /**
  * Retrieves the value of the node at the specified index.
  */
-int get(const HOHLinkedList *list, int index);
+int get(HOHLinkedList *list, int index);
 
 /**
  * Retrieves the value of the node at the head of the linked list.
  */
-int front(const HOHLinkedList *list);
+int front(HOHLinkedList *list);
 
 /**
  * Retrieves the value of the node at the tail of the linked list.
  */
-int back(const HOHLinkedList *list);
+int back(HOHLinkedList *list);
 
 /**
  * Prints the linked list's contents.
  */
-void printList(const HOHLinkedList *list);
+void printList(HOHLinkedList *list);
 
 // Delete nodes
 
