@@ -9,8 +9,8 @@ typedef struct GLNode {
 } GLNode;
 
 typedef struct GLLinkedList {
-  pthread_mutex_t lock;
   GLNode *head;
+  pthread_mutex_t lock;
 } GLLinkedList;
 
 /**
@@ -62,27 +62,27 @@ void insertTail(GLLinkedList *list, int data);
 /**
  * Retrieves the size of the linked list.
  */
-int size(const GLLinkedList *list);
+int size(GLLinkedList *list);
 
 /**
  * Retrieves the value of the node at the specified index.
  */
-int get(const GLLinkedList *list, int index);
+int get(GLLinkedList *list, int index);
 
 /**
  * Retrieves the value of the node at the head of the linked list.
  */
-int front(const GLLinkedList *list);
+int front(GLLinkedList *list);
 
 /**
  * Retrieves the value of the node at the tail of the linked list.
  */
-int back(const GLLinkedList *list);
+int back(GLLinkedList *list);
 
 /**
  * Prints the linked list's contents.
  */
-void printList(const GLLinkedList *list);
+void printList(GLLinkedList *list);
 
 // Delete nodes
 
