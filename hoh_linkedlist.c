@@ -314,7 +314,7 @@ void printList(HOHLinkedList *list) {
   if (prevBuf) {
     printf(" -> ");
   }
-  printf("(null)");
+  printf("(null)\n");
 
   // relinquish the lock on the current node and the linked list's print lock
   pthread_mutex_unlock(&curr->lock);
