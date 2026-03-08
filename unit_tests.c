@@ -243,7 +243,63 @@ void massAppendTests() {
   }
 
   // assert
-  assertEquals(size(list), numberOfThreads * 1000, "Concurrent-append list size is a constant");
+  assertEquals(size(list), numberOfThreads * 1000,
+               "Concurrent-append list size is a constant");
+}
+
+void *producerRoutine(void *args) {
+  HOHLinkedList *list = (HOHLinkedList *)args;
+
+  for (int i = 0; i < 50; i++) {
+    append(list, i);
+  }
+
+  return NULL;
+}
+
+void *consumerRoutine(void *args) {
+  HOHLinkedList *list = (HOHLinkedList *)args;
+
+  for (int i = 0; i < 50; i++) {
+    removeHead(list);
+  }
+
+  return NULL;
+}
+
+void producerConsumerTests() {
+  // arrange
+  int numberOfProducers = 5;
+  int numberOfConsumers = 5;
+  pthread_t producers[numberOfProducers];
+  pthread_t consumers[numberOfConsumers];
+
+  HOHLinkedList *list;
+  initList(&list);
+
+  // act
+  for (int i = 0; i < numberOfProducers && i < numberOfConsumers; i++) {
+    if (i < numberOfProducers) {
+      pthread_create(&producers[i], NULL, producerRoutine, (void *)list);
+    }
+    if (i < numberOfConsumers) {
+      pthread_create(&consumers[i], NULL, consumerRoutine, (void *)list);
+    }
+  }
+
+  for (int i = 0; i < numberOfProducers && i < numberOfConsumers; i++) {
+    if (i < numberOfProducers) {
+      pthread_join(producers[i], NULL);
+    }
+    if (i < numberOfConsumers) {
+      pthread_join(consumers[i], NULL);
+    }
+  }
+
+  // assert
+  printList(list);
+
+  destroyList(list);
 }
 
 int main() {
@@ -251,4 +307,5 @@ int main() {
   singleElementListTests();
   outOfBoundsListTests();
   massAppendTests();
+  producerConsumerTests();
 }
