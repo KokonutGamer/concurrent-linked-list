@@ -192,7 +192,39 @@ int back(GLLinkedList *list) {
   return value;
 }
 
-void printList(GLLinkedList *list);
+void printList(GLLinkedList *list) {
+  // exit early if the list is null
+  if (list == NULL) {
+    return;
+  }
+
+  // acquire the lock on the list first
+  pthread_mutex_lock(&list->lock);
+
+  // checks if a previous element was printed
+  int prevBuf = 0;
+
+  // traverse the list starting at the head
+  GLNode *curr = list->head;
+
+  while (curr != NULL) {
+    if (prevBuf) {
+      printf(" -> ");
+    }
+    printf("%d", curr->data);
+    prevBuf = 1;
+    curr = curr->next;
+  }
+
+  // print the end of the list
+  if (prevBuf) {
+    printf(" -> ");
+  }
+  printf("(null)\n");
+
+  // relinqusih the lock on the list
+  pthread_mutex_unlock(&list->lock);
+}
 
 void clearList(GLLinkedList *list) {
   // exit early if the list is null
