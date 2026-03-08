@@ -145,8 +145,86 @@ void clearList(GLLinkedList *list) {
   pthread_mutex_unlock(&list->lock);
 }
 
-void removeNode(GLLinkedList *list, int index);
+void removeNode(GLLinkedList *list, int index) {
+  // exit early if the list is null
+  if (list == NULL) {
+    return;
+  }
 
-void removeHead(GLLinkedList *list);
+  // acquire the lock on the list first
+  pthread_mutex_lock(&list->lock);
 
-void removeTail(GLLinkedList *list);
+  // check if the head is null before removing any nodes
+  if (list->head == NULL) {
+    pthread_mutex_unlock(&list->lock);
+    return;
+  }
+
+  if (index == 0) {
+    // remove the head of the list
+    GLNode *newHead = list->head->next;
+    free(list->head);
+    list->head = newHead;
+    pthread_mutex_unlock(&list->lock);
+    return;
+  }
+
+  // decrement the index; the neighbor of the current is the target index
+  index--;
+  GLNode *curr = list->head;
+  while (curr->next != NULL && index != 0) {
+    curr = curr->next;
+    index--;
+  }
+
+  if (curr->next == NULL || index != 0) {
+    // relinquish the lock on the list; index out of bounds
+    pthread_mutex_unlock(&list->lock);
+    return;
+  }
+
+  // free the node now that we've found its index
+  GLNode *next = curr->next->next;
+  free(curr->next);
+  curr->next = next;
+  pthread_mutex_unlock(&list->lock);
+}
+
+void removeHead(GLLinkedList *list) { removeNode(list, 0); }
+
+void removeTail(GLLinkedList *list) {
+  // exit early if the list is null
+  if (list == NULL) {
+    return;
+  }
+
+  // acquire the lock on the list first
+  pthread_mutex_lock(&list->lock);
+
+  // check if the head is null before removing any nodes
+  if (list->head == NULL) {
+    pthread_mutex_unlock(&list->lock);
+    return;
+  }
+
+  // check if the head is also the tail
+  if (list->head->next == NULL) {
+    free(list->head);
+    list->head = NULL;
+    pthread_mutex_unlock(&list->lock);
+    return;
+  }
+
+  // traverse the list starting at the head
+  GLNode *curr = list->head;
+
+  // the current node's neighbor should never be null
+  while (curr->next->next != NULL) {
+    curr = curr->next;
+  }
+
+  // free the current node's neighbor as it's the last in the list
+  free(curr->next);
+  curr->next = NULL;
+  pthread_mutex_unlock(&list->lock);
+}
