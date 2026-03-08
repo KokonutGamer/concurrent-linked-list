@@ -105,7 +105,34 @@ void insertHead(GLLinkedList *list, int data) { insertNode(list, 0, data); }
 
 void insertTail(GLLinkedList *list, int data) { append(list, data); }
 
-int size(GLLinkedList *list);
+int size(GLLinkedList *list) {
+  if (list == NULL) {
+    return 0;
+  }
+
+  // acquire the lock on the list first
+  pthread_mutex_lock(&list->lock);
+
+  // check if the head is null before counting the size
+  if (list->head == NULL) {
+    pthread_mutex_unlock(&list->lock);
+    return 0;
+  }
+
+  // size must be greater than or equal to 1 now
+  int count = 1;
+
+  // traverse the list starting at the head
+  GLNode *curr = list->head;
+  while (curr->next != NULL) {
+    count++;
+    curr = curr->next;
+  }
+
+  // relinquish the lock on the list
+  pthread_mutex_unlock(&list->lock);
+  return count;
+}
 
 int get(GLLinkedList *list, int index);
 
