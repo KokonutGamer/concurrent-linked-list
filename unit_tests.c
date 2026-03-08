@@ -247,6 +247,48 @@ void massAppendTests() {
                "Concurrent-append list size is a constant");
 }
 
+void *alternatingRoutine(void *args) {
+  HOHLinkedList *list = (HOHLinkedList *)args;
+
+  int prevSize = -1;
+  for (int i = 0; i < 9; i++) {
+    switch (i % 3) {
+    case 0:
+      append(list, prevSize);
+      break;
+    case 1:
+      printList(list);
+      break;
+    case 2:
+      prevSize = size(list);
+    }
+  }
+
+  return NULL;
+}
+
+void concurrentReadWriteTests() {
+  // arrange
+  int numberOfThreads = 10;
+  pthread_t threads[numberOfThreads];
+
+  HOHLinkedList *list;
+  initList(&list);
+
+  // act
+  for (int i = 0; i < numberOfThreads; i++) {
+    pthread_create(&threads[i], NULL, alternatingRoutine, (void *)list);
+  }
+  for (int i = 0; i < numberOfThreads; i++) {
+    pthread_join(threads[i], NULL);
+  }
+
+  // assert
+  assertEquals(size(list), numberOfThreads * 3, "Concurrent Read-Write list size is a constant");
+
+  destroyList(list);
+}
+
 void *producerRoutine(void *args) {
   HOHLinkedList *list = (HOHLinkedList *)args;
 
@@ -278,7 +320,7 @@ void producerConsumerTests() {
   initList(&list);
 
   // act
-  for (int i = 0; i < numberOfProducers && i < numberOfConsumers; i++) {
+  for (int i = 0; i < numberOfProducers || i < numberOfConsumers; i++) {
     if (i < numberOfProducers) {
       pthread_create(&producers[i], NULL, producerRoutine, (void *)list);
     }
@@ -308,4 +350,5 @@ int main() {
   outOfBoundsListTests();
   massAppendTests();
   producerConsumerTests();
+  concurrentReadWriteTests();
 }
