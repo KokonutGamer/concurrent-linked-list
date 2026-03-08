@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 HOHNode *createNode(int data) {
   HOHNode *node = (HOHNode *)malloc(sizeof(HOHNode));

@@ -25,7 +25,7 @@ GLNode *createNode(int data);
 /**
  * Initializes an empty linked list.
  */
-void initList(GLLinkedList *list);
+void initList(GLLinkedList **list);
 
 // Delete lists
 
