@@ -71,8 +71,8 @@ void emptyListTests() {
 
   // assert
   assertEquals(size(list), 0, "Empty list size is zero");
-  assertEquals(front(list), 0, "Empty list front is zero");
-  assertEquals(back(list), 0, "Empty list back is zero");
+  assertEquals(front(list), 0, "Empty list head is zero");
+  assertEquals(back(list), 0, "Empty list tail is zero");
   assertEquals(get(list, 0), 0, "Empty list at index 0 is zero");
 
   assertNoSegFault(removeHead, list,
@@ -83,10 +83,39 @@ void emptyListTests() {
                    "Clearing an empty list results in no segmentation fault");
   assertNoSegFault(printList, list,
                    "Printing an empty list results in no segmentation fault");
-  //   removeHead(list);
-  //   removeTail(list);
-  //   clearList(list);
-  //   printList(list);
 }
 
-int main() { emptyListTests(); }
+void singleElementListTests() {
+  // arrange
+  HOHLinkedList *list;
+  initList(&list);
+  int value = 24;
+
+  // act
+  append(list, value);
+
+  // assert
+  assertEquals(front(list), value, "Single-element list head is a constant");
+  assertEquals(back(list), value, "Single-element list tail is a constant");
+  assertNoSegFault(
+      printList, list,
+      "Printing a single-element list results in no segmentation fault");
+
+  // act
+  removeTail(list);
+
+  // assert
+  assertEquals(
+      front(list), 0,
+      "Single-element list tail removal results in head equal to zero");
+  assertEquals(
+      back(list), 0,
+      "Single-element list tail removal results in tail equal to zero");
+  assertNoSegFault(printList, list,
+                   "Printing an empty list results in no segmentation fault");
+}
+
+int main() {
+  emptyListTests();
+  singleElementListTests();
+}
