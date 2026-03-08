@@ -119,7 +119,7 @@ assertNoSegFaultListValue(void (*testFunction)(HOHLinkedList *, int value),
 }
 
 /**
- * ==================== SINGLE-THREADED EDGE CASES ====================
+ * ==================== SINGLE-THREADED TESTS ====================
  */
 void emptyListTests() {
   // arrange
@@ -146,6 +146,8 @@ void emptyListTests() {
   assertNoSegFaultList(
       printList, list,
       "Printing an empty list results in no segmentation fault");
+
+  destroyList(list);
 }
 
 void singleElementListTests() {
@@ -177,6 +179,8 @@ void singleElementListTests() {
   assertNoSegFaultList(
       printList, list,
       "Printing an empty list results in no segmentation fault");
+
+  destroyList(list);
 }
 
 void outOfBoundsListTests() {
@@ -204,10 +208,47 @@ void outOfBoundsListTests() {
   assertNotEquals(back(list), 5,
                   "Attempting to insert an out-of-bounds index results in no "
                   "new insertion");
+
+  destroyList(list);
+}
+
+/**
+ * ==================== MULTI-THREADED TESTS ====================
+ */
+
+void *appendRoutine(void *args) {
+  HOHLinkedList *list = (HOHLinkedList *)args;
+
+  for (int i = 0; i < 1000; i++) {
+    append(list, i);
+  }
+
+  return NULL;
+}
+
+void massAppendTests() {
+  // arrange
+  int numberOfThreads = 10;
+  pthread_t threads[numberOfThreads];
+
+  HOHLinkedList *list;
+  initList(&list);
+
+  // act
+  for (int i = 0; i < numberOfThreads; i++) {
+    pthread_create(&threads[i], NULL, appendRoutine, (void *)list);
+  }
+  for (int i = 0; i < numberOfThreads; i++) {
+    pthread_join(threads[i], NULL);
+  }
+
+  // assert
+  assertEquals(size(list), numberOfThreads * 1000, "Concurrent-append list size is a constant");
 }
 
 int main() {
   emptyListTests();
   singleElementListTests();
   outOfBoundsListTests();
+  massAppendTests();
 }
