@@ -64,8 +64,8 @@ void append(HOHLinkedList *list, int data) {
 }
 
 void insertNode(HOHLinkedList *list, int index, int data) {
-  // exit early if the list is null
-  if (list == NULL || list->head == NULL) {
+  // exit early if the list is null or index is negative
+  if (list == NULL || list->head == NULL || index < 0) {
     return;
   }
 
@@ -153,7 +153,7 @@ int size(HOHLinkedList *list) {
 
 int get(HOHLinkedList *list, int index) {
   // TODO implement error handling
-  if (list == NULL || list->head == NULL) {
+  if (list == NULL || list->head == NULL || index < 0) {
     return 0;
   }
 
@@ -352,8 +352,8 @@ void clearList(HOHLinkedList *list) {
 }
 
 void removeNode(HOHLinkedList *list, int index) {
-  // exit early if the list is null
-  if (list == NULL || list->head == NULL) {
+  // exit early if the list is null or index is negative
+  if (list == NULL || list->head == NULL || index < 0) {
     return;
   }
 

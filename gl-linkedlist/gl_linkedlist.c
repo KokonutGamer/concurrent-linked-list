@@ -57,8 +57,8 @@ void append(GLLinkedList *list, int data) {
 }
 
 void insertNode(GLLinkedList *list, int index, int data) {
-  // exit early if the list is null
-  if (list == NULL) {
+  // exit early if the list is null or index is negative
+  if (list == NULL || index < 0) {
     return;
   }
 
@@ -136,7 +136,7 @@ int size(GLLinkedList *list) {
 
 int get(GLLinkedList *list, int index) {
   // TODO implement error handling
-  if (list == NULL) {
+  if (list == NULL || index < 0) {
     return 0;
   }
 
@@ -247,8 +247,8 @@ void clearList(GLLinkedList *list) {
 }
 
 void removeNode(GLLinkedList *list, int index) {
-  // exit early if the list is null
-  if (list == NULL) {
+  // exit early if the list is null or index is negative
+  if (list == NULL || index < 0) {
     return;
   }
 
