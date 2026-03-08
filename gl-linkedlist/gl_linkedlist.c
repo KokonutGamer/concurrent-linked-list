@@ -134,11 +134,63 @@ int size(GLLinkedList *list) {
   return count;
 }
 
-int get(GLLinkedList *list, int index);
+int get(GLLinkedList *list, int index) {
+  // TODO implement error handling
+  if (list == NULL) {
+    return 0;
+  }
 
-int front(GLLinkedList *list);
+  // acquire the lock on the list first
+  pthread_mutex_lock(&list->lock);
 
-int back(GLLinkedList *list);
+  GLNode *curr = list->head;
+  while (curr != NULL && index > 0) {
+    curr = curr->next;
+    index--;
+  }
+
+  // TODO implement error handling
+  if (curr == NULL) {
+    pthread_mutex_unlock(&list->lock);
+    return 0;
+  }
+
+  // retrieve the current node's data
+  int value = curr->data;
+  pthread_mutex_unlock(&list->lock);
+  return value;
+}
+
+int front(GLLinkedList *list) { return get(list, 0); }
+
+int back(GLLinkedList *list) {
+  // TODO implement error handling
+  if (list == NULL) {
+    return 0;
+  }
+
+  // acquire the lock on the list first
+  pthread_mutex_lock(&list->lock);
+
+  // TODO implement error handling
+  // check if the head is null before traversing the list
+  if (list->head == NULL) {
+    pthread_mutex_unlock(&list->lock);
+    return 0;
+  }
+
+  // traverse the list starting at the head
+  GLNode *curr = list->head;
+
+  while (curr->next != NULL) {
+    curr = curr->next;
+  }
+
+  // retrieve the tail's data
+  int value = curr->data;
+  pthread_mutex_unlock(&list->lock);
+  return value;
+}
 
 void printList(GLLinkedList *list);
 
