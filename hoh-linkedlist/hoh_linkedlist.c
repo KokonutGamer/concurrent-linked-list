@@ -278,9 +278,6 @@ void printList(HOHLinkedList *list) {
   // acquire the list's print lock
   pthread_mutex_lock(&list->printLock);
 
-  // checks if a previous element was printed
-  int prevBuf = 0;
-
   // traverse the list starting at the dummy node
   HOHNode *curr = list->head;
 
@@ -298,11 +295,7 @@ void printList(HOHLinkedList *list) {
       pthread_mutex_unlock(&curr->lock);
 
       // print the current element of the list
-      if (prevBuf) {
-        printf(" -> ");
-      }
-      printf("%d", next->data);
-      prevBuf = 1;
+      printf("%d -> ", next->data);
 
       // continue traversing the list
       curr = next;
@@ -310,9 +303,6 @@ void printList(HOHLinkedList *list) {
   }
 
   // print the end of the list
-  if (prevBuf) {
-    printf(" -> ");
-  }
   printf("(null)\n");
 
   // relinquish the lock on the current node and the linked list's print lock

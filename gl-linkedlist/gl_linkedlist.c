@@ -201,28 +201,18 @@ void printList(GLLinkedList *list) {
   // acquire the lock on the list first
   pthread_mutex_lock(&list->lock);
 
-  // checks if a previous element was printed
-  int prevBuf = 0;
-
   // traverse the list starting at the head
   GLNode *curr = list->head;
 
   while (curr != NULL) {
-    if (prevBuf) {
-      printf(" -> ");
-    }
-    printf("%d", curr->data);
-    prevBuf = 1;
+    printf("%d -> ", curr->data);
     curr = curr->next;
   }
 
   // print the end of the list
-  if (prevBuf) {
-    printf(" -> ");
-  }
   printf("(null)\n");
 
-  // relinqusih the lock on the list
+  // relinquish the lock on the list
   pthread_mutex_unlock(&list->lock);
 }
 
