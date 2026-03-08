@@ -1,4 +1,4 @@
-TARGET := main
+TARGET := unit_tests
 
 # Find all source files in the current directory
 SRCS := $(wildcard *.c)
@@ -29,9 +29,6 @@ clean:
 
 # Target to run the compiled program
 run: $(TARGET)
-	# Always start fresh by cleaning before running
 	make clean
-	# Build the program
 	make all
-	# Run the program
 	./$(TARGET)
